@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .clock {
+            position: relative;
+            width: 162px;
+            height: 162px;
+            border-radius: 50%;
+        }
+
+        .hour-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* Метки */
+        .mark {
+            position: absolute;
+            width: 0.54px;
+            left: 50%;
+            top: 2.7px;
+            transform-origin: 50% 78.3px;
+        }
+
+        .mark.main {
+            height: 13.5px;
+            background: #000000;
+        }
+
+        .mark.small {
+            height: 9.72px;
+            background: #666666;
+        }
+
+        /* Стрелки с легкими тенями */
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            background: #333333;
+            border-radius: 1px;
+            filter: drop-shadow(0 0.54px 1.08px rgba(0, 0, 0, 0.2));
+        }
+
+        .hour-hand {
+            width: 2.7px;
+            height: 43.2px;
+            margin-left: -1.35px;
+        }
+
+        .minute-hand {
+            width: 1.62px;
+            height: 59.4px;
+            margin-left: -0.81px;
+        }
+
+        /* Секундная стрелка с хвостиком и красноватой тенью */
+        .second-hand-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: 50% 50%;
+        }
+
+        .second-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 0.54px;
+            height: 70.2px;
+            margin-left: -0.27px;
+            background: #e74c3c;
+            transform-origin: 50% 100%;
+            filter: drop-shadow(0 0.54px 1.08px rgba(231, 76, 60, 0.3));
+        }
+
+        .second-hand-tail {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0.54px;
+            height: 16.2px;
+            margin-left: -0.27px;
+            background: #e74c3c;
+        }
+
+        .center-dot {
+            position: absolute;
+            width: 6.48px;
+            height: 6.48px;
+            background: #333333;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <div class="hour-marks"></div>
+        <div class="hand hour-hand"></div>
+        <div class="hand minute-hand"></div>
+        <div class="second-hand-wrapper">
+            <div class="hand second-hand"></div>
+            <div class="second-hand-tail"></div>
+        </div>
+        <div class="center-dot"></div>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="https://www.dropbox.com/scl/fi/sb92pyfwe6yf8czm1j903/Clock-from-childhood2.mp3?rlkey=6mwfavvheglemmdzjat88vl10&st=y1xxj9rb&dl=1" type="audio/mpeg">
+    </audio>
+
+    <script>
+        function createClockMarks() {
+            const hourMarks = document.querySelector(".hour-marks");
+
+            // Создаем 12 меток для часов
+            for (let i = 0; i < 12; i++) {
+                const mark = document.createElement("div");
+                mark.classList.add("mark");
+
+                // Основные метки для 12, 3, 6, 9
+                if (i % 3 === 0) {
+                    mark.classList.add("main");
+                } else {
+                    mark.classList.add("small");
+                }
+
+                mark.style.transform = `rotate(${i * 30}deg) translateX(-50%)`;
+                hourMarks.appendChild(mark);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours() % 12;
+
+            // Плавное движение стрелок
+            const secondDeg = seconds * 6; // 360 / 60
+            const minuteDeg = minutes * 6 + seconds * 0.1; // 360 / 60 + плавность
+            const hourDeg = hours * 30 + minutes * 0.5; // 360 / 12 + плавность
+
+            document.querySelector(
+                ".second-hand-wrapper"
+            ).style.transform = `rotate(${secondDeg}deg)`;
+            document.querySelector(
+                ".minute-hand"
+            ).style.transform = `rotate(${minuteDeg}deg)`;
+            document.querySelector(
+                ".hour-hand"
+            ).style.transform = `rotate(${hourDeg}deg)`;
+        }
+
+        // Инициализация
+        createClockMarks();
+        updateClock();
+        setInterval(updateClock, 100);
+
+        // Запуск фоновой музыки
+        window.addEventListener("click", function playMusic() {
+            const audio = document.getElementById("backgroundMusic");
+            audio.volume = 0.5; // Громкость 50%
+            audio
+                .play()
+                .catch(() => console.log("Автозапуск музыки заблокирован браузером"));
+            window.removeEventListener("click", playMusic);
+        });
+    </script>
+</body>
+</html>
