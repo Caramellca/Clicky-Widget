@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: "Noto Sans", sans-serif;
+        }
+
+        .weather-widget {
+            width: 180px;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .weather-loading {
+            text-align: center;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .weather-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .weather-location {
+            font-size: 18px;
+            font-weight: 300;
+            color: #999999;
+            letter-spacing: -0.3px;
+            text-transform: capitalize;
+        }
+
+        .weather-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .weather-temp {
+            font-size: 48px;
+            font-weight: 300;
+            color: #333333;
+            letter-spacing: -2.6px;
+            line-height: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .weather-temp:hover {
+            opacity: 0.7;
+        }
+
+        .weather-temp.updating {
+            animation: pulse 0.6s ease;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .weather-description {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333333;
+            text-transform: capitalize;
+        }
+
+        .weather-details {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 8px;
+        }
+
+        .detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 400;
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .value {
+            font-size: 16px;
+            color: #666666;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-widget" id="weatherWidget">
+        <div class="weather-loading">Загрузка...</div>
+        <div class="weather-content" style="display: none;">
+            <div class="weather-location" id="location"></div>
+            <div class="weather-main">
+                <div class="weather-temp" id="temperature"></div>
+                <div class="weather-description" id="description"></div>
+            </div>
+            <div class="weather-details">
+                <div class="detail">
+                    <span class="label">Влажность</span>
+                    <span class="value" id="humidity"></span>
+                </div>
+                <div class="detail">
+                    <span class="label">Ветер</span>
+                    <span class="value" id="wind"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Координаты Massamagrell, Valencia
+        const latitude = 39.57;
+        const longitude = -0.33;
+        const cityName = "Massamagrell";
+
+        // Функция для получения погоды
+        async function getWeather() {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const current = data.current;
+
+                // Описание погоды по коду
+                const weatherDescriptions = {
+                    0: "Ясно",
+                    1: "Малооблачно",
+                    2: "Облачно",
+                    3: "Пасмурно",
+                    45: "Туман",
+                    48: "Туман",
+                    51: "Морось",
+                    53: "Морось",
+                    55: "Морось",
+                    61: "Дождь",
+                    63: "Дождь",
+                    65: "Сильный дождь",
+                    71: "Снег",
+                    73: "Снег",
+                    75: "Сильный снег",
+                    77: "Снег",
+                    80: "Ливень",
+                    81: "Ливень",
+                    82: "Сильный ливень",
+                    85: "Снег",
+                    86: "Сильный снег",
+                    95: "Гроза",
+                    96: "Гроза",
+                    99: "Гроза"
+                };
+
+                const weatherCode = current.weather_code;
+                const description = weatherDescriptions[weatherCode] || "Неизвестно";
+
+                // Обновление DOM
+                document.getElementById("location").textContent = cityName;
+                document.getElementById("temperature").textContent = `${Math.round(
+                    current.temperature_2m
+                )}°`;
+                document.getElementById("description").textContent = description;
+                document.getElementById(
+                    "humidity"
+                ).textContent = `${current.relative_humidity_2m}%`;
+                document.getElementById("wind").textContent = `${Math.round(
+                    current.wind_speed_10m
+                )} км/ч`;
+
+                // Показать контент
+                document.querySelector(".weather-loading").style.display = "none";
+                document.querySelector(".weather-content").style.display = "flex";
+
+                // Анимация обновления
+                const tempEl = document.getElementById("temperature");
+                tempEl.classList.add("updating");
+                setTimeout(() => tempEl.classList.remove("updating"), 600);
+            } catch (error) {
+                document.querySelector(".weather-loading").textContent = "Ошибка загрузки";
+                console.error("Ошибка:", error);
+            }
+        }
+
+        // Загрузка погоды при старте
+        getWeather();
+
+        // Обновление каждые 10 минут
+        setInterval(getWeather, 600000);
+
+        // Добавляем клик по виджету для ручного обновления
+        document.getElementById("weatherWidget").addEventListener("click", () => {
+            console.log("Ручное обновление погоды");
+            getWeather();
+        });
+    </script>
+</body>
+</html>
