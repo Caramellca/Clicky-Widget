@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Widget</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        color-scheme: light dark;
+
+        --bg: #ffffff;
+        --loading: #666666;
+
+        --location: #999999;
+        --temp: #333333;
+        --description: #333333;
+
+        --details-border: #e6e6e6;
+        --label: #999999;
+        --value: #666666;
+
+        --shadow: rgba(0, 0, 0, 0.18);
+        --switch-bg: #eef1f4;
+        --switch-thumb: #ffffff;
+        --switch-border: rgba(0, 0, 0, 0.05);
+      }
+
+      html[data-theme="dark"] {
+        --bg: #0f1115;
+        --loading: #94a3b8;
+
+        --location: #8f98ab;
+        --temp: #f1f5f9;
+        --description: #f1f5f9;
+
+        --details-border: rgba(255, 255, 255, 0.1);
+        --label: #7d8798;
+        --value: #cbd5e1;
+
+        --shadow: rgba(0, 0, 0, 0.45);
+        --switch-bg: #263041;
+        --switch-thumb: #ffffff;
+        --switch-border: rgba(255, 255, 255, 0.1);
+      }
+
+      body {
+        background: var(--bg);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Noto Sans", sans-serif;
+        transition: background 0.25s ease;
+      }
+
+      .widget-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .weather-widget {
+        position: relative;
+        width: 180px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .weather-loading {
+        text-align: center;
+        color: var(--loading);
+        font-size: 13px;
+      }
+
+      .weather-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+
+      .weather-location {
+        font-size: 18px;
+        font-weight: 300;
+        color: var(--location);
+        letter-spacing: -0.3px;
+        text-transform: capitalize;
+      }
+
+      .weather-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .weather-temp {
+        font-size: 48px;
+        font-weight: 300;
+        color: var(--temp);
+        letter-spacing: -2.6px;
+        line-height: 1;
+        transition: opacity 0.3s ease, color 0.25s ease;
+      }
+
+      .weather-temp:hover {
+        opacity: 0.7;
+      }
+
+      .weather-temp.updating {
+        animation: pulse 0.6s ease;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .weather-description {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--description);
+        text-transform: capitalize;
+        transition: color 0.25s ease;
+      }
+
+      .weather-details {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        padding-top: 12px;
+        border-top: 1px solid var(--details-border);
+        margin-top: 8px;
+        transition: border-color 0.25s ease;
+      }
+
+      .detail {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .label {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--label);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        transition: color 0.25s ease;
+      }
+
+      .value {
+        font-size: 16px;
+        color: var(--value);
+        font-weight: 400;
+        transition: color 0.25s ease;
+      }
+
+      .weather-icon {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 44px;
+        height: 44px;
+        pointer-events: none;
+      }
+
+      .weather-icon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 22px;
+        height: 11px;
+      }
+
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        background: var(--switch-bg);
+        border: 1px solid var(--switch-border);
+        border-radius: 999px;
+        transition: background 0.25s ease, border-color 0.25s ease;
+      }
+
+      .slider::before {
+        content: "";
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        left: 1px;
+        top: 1px;
+        border-radius: 50%;
+        background: var(--switch-thumb);
+        box-shadow: 0 1px 2px var(--shadow);
+        transition: transform 0.25s ease;
+      }
+
+      .switch input:checked + .slider::before {
+        transform: translateX(11px);
+      }
+
+      .switch input:focus-visible + .slider {
+        outline: 1.5px solid var(--temp);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="widget-shell">
+      <div class="weather-widget" id="weatherWidget">
+        <div class="weather-icon" id="weatherIcon" aria-hidden="true"></div>
+
+        <div class="weather-loading">Загрузка...</div>
+
+        <div class="weather-content" style="display: none;">
+          <div class="weather-location" id="location"></div>
+
+          <div class="weather-main">
+            <div class="weather-temp" id="temperature"></div>
+            <div class="weather-description" id="description"></div>
+          </div>
+
+          <div class="weather-details">
+            <div class="detail">
+              <span class="label">Влажность</span>
+              <span class="value" id="humidity"></span>
+            </div>
+
+            <div class="detail">
+              <span class="label">Ветер</span>
+              <span class="value" id="wind"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <label class="switch" aria-label="Переключить тему">
+          <input type="checkbox" id="themeSwitch" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <script>
+      const latitude = 39.57;
+      const longitude = -0.33;
+      const cityName = "Massamagrell";
+
+      const iconMap = {
+        0: "day.svg",
+        1: "cloudy-day-1.svg",
+        2: "cloudy-day-2.svg",
+        3: "cloudy.svg",
+        45: "cloudy.svg",
+        48: "cloudy.svg",
+        51: "rainy-1.svg",
+        53: "rainy-2.svg",
+        55: "rainy-3.svg",
+        61: "rainy-4.svg",
+        63: "rainy-5.svg",
+        65: "rainy-6.svg",
+        71: "snowy-1.svg",
+        73: "snowy-3.svg",
+        75: "snowy-5.svg",
+        77: "snowy-2.svg",
+        80: "rainy-5.svg",
+        81: "rainy-6.svg",
+        82: "rainy-7.svg",
+        85: "snowy-4.svg",
+        86: "snowy-6.svg",
+        95: "thunder.svg",
+        96: "thunder.svg",
+        99: "thunder.svg"
+      };
+
+      const weatherDescriptions = {
+        0: "Ясно",
+        1: "Малооблачно",
+        2: "Облачно",
+        3: "Пасмурно",
+        45: "Туман",
+        48: "Туман",
+        51: "Морось",
+        53: "Морось",
+        55: "Морось",
+        61: "Дождь",
+        63: "Дождь",
+        65: "Сильный дождь",
+        71: "Снег",
+        73: "Снег",
+        75: "Сильный снег",
+        77: "Снег",
+        80: "Ливень",
+        81: "Ливень",
+        82: "Сильный ливень",
+        85: "Снег",
+        86: "Сильный снег",
+        95: "Гроза",
+        96: "Гроза",
+        99: "Гроза"
+      };
+
+      async function loadIcon(weatherCode) {
+        const file = iconMap[weatherCode] || "cloudy.svg";
+        const path = `assets/icons/${file}`;
+        const container = document.getElementById("weatherIcon");
+
+        container.innerHTML = "";
+
+        try {
+          const res = await fetch(path, { cache: "reload" });
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          const svg = await res.text();
+          container.innerHTML = svg;
+        } catch (e) {
+          console.warn("Иконка недоступна:", e);
+          container.innerHTML = "";
+        }
+      }
+
+      async function getWeather() {
+        try {
+          const url =
+            `https://api.open-meteo.com/v1/forecast` +
+            `?latitude=${latitude}&longitude=${longitude}` +
+            `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m` +
+            `&timezone=auto`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+          const current = data.current;
+
+          const code = current.weather_code;
+          const description = weatherDescriptions[code] || "Неизвестно";
+
+          document.getElementById("location").textContent = cityName;
+          document.getElementById("temperature").textContent = `${Math.round(
+            current.temperature_2m
+          )}°`;
+          document.getElementById("description").textContent = description;
+          document.getElementById("humidity").textContent =
+            `${current.relative_humidity_2m}%`;
+          document.getElementById("wind").textContent =
+            `${Math.round(current.wind_speed_10m)} км/ч`;
+
+          document.querySelector(".weather-loading").style.display = "none";
+          document.querySelector(".weather-content").style.display = "flex";
+
+          loadIcon(code);
+
+          const tempEl = document.getElementById("temperature");
+          tempEl.classList.add("updating");
+          setTimeout(() => tempEl.classList.remove("updating"), 600);
+        } catch (error) {
+          document.querySelector(".weather-loading").textContent =
+            "Ошибка загрузки";
+          console.error("Ошибка:", error);
+        }
+      }
+
+      const themeSwitch = document.getElementById("themeSwitch");
+      const root = document.documentElement;
+
+      function applyTheme(isDark) {
+        root.setAttribute("data-theme", isDark ? "dark" : "light");
+        themeSwitch.checked = isDark;
+      }
+
+      applyTheme(false);
+
+      themeSwitch.addEventListener("change", () => {
+        applyTheme(themeSwitch.checked);
+      });
+
+      getWeather();
+      setInterval(getWeather, 600000);
+      document
+        .getElementById("weatherWidget")
+        .addEventListener("click", getWeather);
+    </script>
+  </body>
+</html>
