@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,29 +30,21 @@
         --details-border: #e6e6e6;
         --label: #999999;
         --value: #666666;
-
-        --shadow: rgba(0, 0, 0, 0.18);
-        --switch-bg: #eef1f4;
-        --switch-thumb: #ffffff;
-        --switch-border: rgba(0, 0, 0, 0.05);
       }
 
-      html[data-theme="dark"] {
-        --bg: #191919;
-        --loading: #94a3b8;
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #191919;
+          --loading: #94a3b8;
 
-        --location: #8f98ab;
-        --temp: #f1f5f9;
-        --description: #f1f5f9;
+          --location: #8f98ab;
+          --temp: #f1f5f9;
+          --description: #f1f5f9;
 
-        --details-border: rgba(255, 255, 255, 0.1);
-        --label: #7d8798;
-        --value: #cbd5e1;
-
-        --shadow: rgba(0, 0, 0, 0.45);
-        --switch-bg: #263041;
-        --switch-thumb: #ffffff;
-        --switch-border: rgba(255, 255, 255, 0.1);
+          --details-border: rgba(255, 255, 255, 0.1);
+          --label: #7d8798;
+          --value: #cbd5e1;
+        }
       }
 
       body {
@@ -63,13 +55,6 @@
         align-items: center;
         font-family: "Noto Sans", sans-serif;
         transition: background 0.25s ease;
-      }
-
-      .widget-shell {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
       }
 
       .weather-widget {
@@ -189,95 +174,34 @@
         height: 100%;
         display: block;
       }
-
-      .toolbar {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 22px;
-        height: 11px;
-      }
-
-      .switch input {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      .slider {
-        position: absolute;
-        inset: 0;
-        cursor: pointer;
-        background: var(--switch-bg);
-        border: 1px solid var(--switch-border);
-        border-radius: 999px;
-        transition: background 0.25s ease, border-color 0.25s ease;
-      }
-
-      .slider::before {
-        content: "";
-        position: absolute;
-        width: 7px;
-        height: 7px;
-        left: 1px;
-        top: 1px;
-        border-radius: 50%;
-        background: var(--switch-thumb);
-        box-shadow: 0 1px 2px var(--shadow);
-        transition: transform 0.25s ease;
-      }
-
-      .switch input:checked + .slider::before {
-        transform: translateX(11px);
-      }
-
-      .switch input:focus-visible + .slider {
-        outline: 1.5px solid var(--temp);
-        outline-offset: 2px;
-      }
     </style>
   </head>
 
   <body>
-    <div class="widget-shell">
-      <div class="weather-widget" id="weatherWidget">
-        <div class="weather-icon" id="weatherIcon" aria-hidden="true"></div>
+    <div class="weather-widget" id="weatherWidget">
+      <div class="weather-icon" id="weatherIcon" aria-hidden="true"></div>
 
-        <div class="weather-loading">Загрузка...</div>
+      <div class="weather-loading">Загрузка...</div>
 
-        <div class="weather-content" style="display: none;">
-          <div class="weather-location" id="location"></div>
+      <div class="weather-content" style="display: none;">
+        <div class="weather-location" id="location"></div>
 
-          <div class="weather-main">
-            <div class="weather-temp" id="temperature"></div>
-            <div class="weather-description" id="description"></div>
+        <div class="weather-main">
+          <div class="weather-temp" id="temperature"></div>
+          <div class="weather-description" id="description"></div>
+        </div>
+
+        <div class="weather-details">
+          <div class="detail">
+            <span class="label">Влажность</span>
+            <span class="value" id="humidity"></span>
           </div>
 
-          <div class="weather-details">
-            <div class="detail">
-              <span class="label">Влажность</span>
-              <span class="value" id="humidity"></span>
-            </div>
-
-            <div class="detail">
-              <span class="label">Ветер</span>
-              <span class="value" id="wind"></span>
-            </div>
+          <div class="detail">
+            <span class="label">Ветер</span>
+            <span class="value" id="wind"></span>
           </div>
         </div>
-      </div>
-
-      <div class="toolbar">
-        <label class="switch" aria-label="Переключить тему">
-          <input type="checkbox" id="themeSwitch" />
-          <span class="slider"></span>
-        </label>
       </div>
     </div>
 
@@ -397,20 +321,6 @@
           console.error("Ошибка:", error);
         }
       }
-
-      const themeSwitch = document.getElementById("themeSwitch");
-      const root = document.documentElement;
-
-      function applyTheme(isDark) {
-        root.setAttribute("data-theme", isDark ? "dark" : "light");
-        themeSwitch.checked = isDark;
-      }
-
-      applyTheme(false);
-
-      themeSwitch.addEventListener("change", () => {
-        applyTheme(themeSwitch.checked);
-      });
 
       getWeather();
       setInterval(getWeather, 600000);
