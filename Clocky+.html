@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clock Widget</title>
     <style>
         * {
@@ -21,22 +21,18 @@
             --second: #e74c3c;
             --shadow: rgba(0, 0, 0, 0.18);
             --second-shadow: rgba(231, 76, 60, 0.28);
-            --switch-bg: #eef1f4;
-            --switch-thumb: #ffffff;
-            --switch-border: rgba(0, 0, 0, 0.05);
         }
 
-        html[data-theme="dark"] {
-            --bg: #191919;
-            --text: #f1f5f9;
-            --mark-main: #f8fafc;
-            --mark-small: #94a3b8;
-            --second: #ff5a4f;
-            --shadow: rgba(0, 0, 0, 0.45);
-            --second-shadow: rgba(255, 90, 79, 0.35);
-            --switch-bg: #263041;
-            --switch-thumb: #ffffff;
-            --switch-border: rgba(255, 255, 255, 0.1);
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #191919;
+                --text: #f1f5f9;
+                --mark-main: #f8fafc;
+                --mark-small: #94a3b8;
+                --second: #ff5a4f;
+                --shadow: rgba(0, 0, 0, 0.45);
+                --second-shadow: rgba(255, 90, 79, 0.35);
+            }
         }
 
         body {
@@ -48,13 +44,6 @@
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             transition: background 0.25s ease, color 0.25s ease;
-        }
-
-        .widget {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
         }
 
         .clock {
@@ -155,79 +144,18 @@
             z-index: 10;
             box-shadow: 0 0 0 1px var(--bg);
         }
-
-        .toolbar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 22px;
-            height: 11px;
-        }
-
-        .switch input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            inset: 0;
-            cursor: pointer;
-            background: var(--switch-bg);
-            border: 1px solid var(--switch-border);
-            border-radius: 999px;
-            transition: background 0.25s ease, border-color 0.25s ease;
-        }
-
-        .slider::before {
-            content: "";
-            position: absolute;
-            width: 7px;
-            height: 7px;
-            left: 1px;
-            top: 1px;
-            border-radius: 50%;
-            background: var(--switch-thumb);
-            box-shadow: 0 1px 2px var(--shadow);
-            transition: transform 0.25s ease;
-        }
-
-        .switch input:checked + .slider::before {
-            transform: translateX(11px);
-        }
-
-        .switch input:focus-visible + .slider {
-            outline: 1.5px solid var(--text);
-            outline-offset: 2px;
-        }
     </style>
 </head>
 <body>
-    <div class="widget">
-        <div class="clock">
-            <div class="hour-marks"></div>
-            <div class="hand hour-hand"></div>
-            <div class="hand minute-hand"></div>
-            <div class="second-hand-wrapper">
-                <div class="hand second-hand"></div>
-                <div class="second-hand-tail"></div>
-            </div>
-            <div class="center-dot"></div>
+    <div class="clock">
+        <div class="hour-marks"></div>
+        <div class="hand hour-hand"></div>
+        <div class="hand minute-hand"></div>
+        <div class="second-hand-wrapper">
+            <div class="hand second-hand"></div>
+            <div class="second-hand-tail"></div>
         </div>
-
-        <div class="toolbar">
-            <label class="switch" aria-label="Переключить тему">
-                <input type="checkbox" id="themeSwitch">
-                <span class="slider"></span>
-            </label>
-        </div>
+        <div class="center-dot"></div>
     </div>
 
     <script>
@@ -258,20 +186,6 @@
             document.querySelector(".minute-hand").style.transform = `rotate(${minuteDeg}deg)`;
             document.querySelector(".hour-hand").style.transform = `rotate(${hourDeg}deg)`;
         }
-
-        const themeSwitch = document.getElementById("themeSwitch");
-        const root = document.documentElement;
-
-        function applyTheme(isDark) {
-            root.setAttribute("data-theme", isDark ? "dark" : "light");
-            themeSwitch.checked = isDark;
-        }
-
-        applyTheme(false);
-
-        themeSwitch.addEventListener("change", () => {
-            applyTheme(themeSwitch.checked);
-        });
 
         createClockMarks();
         updateClock();
