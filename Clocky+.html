@@ -19,11 +19,11 @@
             --mark-main: #000000;
             --mark-small: #666666;
             --second: #e74c3c;
-            --shadow: rgba(0, 0, 0, 0.2);
-            --second-shadow: rgba(231, 76, 60, 0.3);
-            --switch-bg: #d9dde3;
+            --shadow: rgba(0, 0, 0, 0.18);
+            --second-shadow: rgba(231, 76, 60, 0.28);
+            --switch-bg: #eef1f4;
             --switch-thumb: #ffffff;
-            --switch-border: rgba(0, 0, 0, 0.08);
+            --switch-border: rgba(0, 0, 0, 0.05);
         }
 
         html[data-theme="dark"] {
@@ -54,13 +54,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 14px;
         }
 
         .clock {
             position: relative;
-            width: 162px;
-            height: 162px;
+            width: 170px;
+            height: 170px;
             border-radius: 50%;
         }
 
@@ -74,19 +74,19 @@
 
         .mark {
             position: absolute;
-            width: 0.54px;
+            width: 0.6px;
             left: 50%;
-            top: 2.7px;
-            transform-origin: 50% 78.3px;
+            top: 2.8px;
+            transform-origin: 50% 82.2px;
         }
 
         .mark.main {
-            height: 13.5px;
+            height: 14.2px;
             background: var(--mark-main);
         }
 
         .mark.small {
-            height: 9.72px;
+            height: 10.2px;
             background: var(--mark-small);
         }
 
@@ -101,15 +101,15 @@
         }
 
         .hour-hand {
-            width: 2.7px;
-            height: 43.2px;
-            margin-left: -1.35px;
+            width: 2.9px;
+            height: 45.3px;
+            margin-left: -1.45px;
         }
 
         .minute-hand {
-            width: 1.62px;
-            height: 59.4px;
-            margin-left: -0.81px;
+            width: 1.75px;
+            height: 62.4px;
+            margin-left: -0.875px;
         }
 
         .second-hand-wrapper {
@@ -125,9 +125,9 @@
             position: absolute;
             bottom: 50%;
             left: 50%;
-            width: 0.54px;
-            height: 70.2px;
-            margin-left: -0.27px;
+            width: 0.6px;
+            height: 73.5px;
+            margin-left: -0.3px;
             background: var(--second);
             transform-origin: 50% 100%;
             filter: drop-shadow(0 0.54px 1.08px var(--second-shadow));
@@ -137,16 +137,16 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 0.54px;
-            height: 16.2px;
-            margin-left: -0.27px;
+            width: 0.6px;
+            height: 17px;
+            margin-left: -0.3px;
             background: var(--second);
         }
 
         .center-dot {
             position: absolute;
-            width: 6.48px;
-            height: 6.48px;
+            width: 6.9px;
+            height: 6.9px;
             background: var(--text);
             border-radius: 50%;
             top: 50%;
