@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            color-scheme: light dark;
+
+            --bg: #ffffff;
+            --text: #333333;
+            --mark-main: #000000;
+            --mark-small: #666666;
+            --second: #e74c3c;
+            --shadow: rgba(0, 0, 0, 0.2);
+            --second-shadow: rgba(231, 76, 60, 0.3);
+            --switch-bg: #d9dde3;
+            --switch-thumb: #ffffff;
+            --switch-border: rgba(0, 0, 0, 0.08);
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0f1115;
+            --text: #f1f5f9;
+            --mark-main: #f8fafc;
+            --mark-small: #94a3b8;
+            --second: #ff5a4f;
+            --shadow: rgba(0, 0, 0, 0.45);
+            --second-shadow: rgba(255, 90, 79, 0.35);
+            --switch-bg: #263041;
+            --switch-thumb: #ffffff;
+            --switch-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .widget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clock {
+            position: relative;
+            width: 162px;
+            height: 162px;
+            border-radius: 50%;
+        }
+
+        .hour-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .mark {
+            position: absolute;
+            width: 0.54px;
+            left: 50%;
+            top: 2.7px;
+            transform-origin: 50% 78.3px;
+        }
+
+        .mark.main {
+            height: 13.5px;
+            background: var(--mark-main);
+        }
+
+        .mark.small {
+            height: 9.72px;
+            background: var(--mark-small);
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            background: var(--text);
+            border-radius: 1px;
+            filter: drop-shadow(0 0.54px 1.08px var(--shadow));
+        }
+
+        .hour-hand {
+            width: 2.7px;
+            height: 43.2px;
+            margin-left: -1.35px;
+        }
+
+        .minute-hand {
+            width: 1.62px;
+            height: 59.4px;
+            margin-left: -0.81px;
+        }
+
+        .second-hand-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: 50% 50%;
+        }
+
+        .second-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 0.54px;
+            height: 70.2px;
+            margin-left: -0.27px;
+            background: var(--second);
+            transform-origin: 50% 100%;
+            filter: drop-shadow(0 0.54px 1.08px var(--second-shadow));
+        }
+
+        .second-hand-tail {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0.54px;
+            height: 16.2px;
+            margin-left: -0.27px;
+            background: var(--second);
+        }
+
+        .center-dot {
+            position: absolute;
+            width: 6.48px;
+            height: 6.48px;
+            background: var(--text);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 0 1px var(--bg);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 22px;
+            height: 11px;
+        }
+
+        .switch input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+            background: var(--switch-bg);
+            border: 1px solid var(--switch-border);
+            border-radius: 999px;
+            transition: background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            left: 1px;
+            top: 1px;
+            border-radius: 50%;
+            background: var(--switch-thumb);
+            box-shadow: 0 1px 2px var(--shadow);
+            transition: transform 0.25s ease;
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(11px);
+        }
+
+        .switch input:focus-visible + .slider {
+            outline: 1.5px solid var(--text);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget">
+        <div class="clock">
+            <div class="hour-marks"></div>
+            <div class="hand hour-hand"></div>
+            <div class="hand minute-hand"></div>
+            <div class="second-hand-wrapper">
+                <div class="hand second-hand"></div>
+                <div class="second-hand-tail"></div>
+            </div>
+            <div class="center-dot"></div>
+        </div>
+
+        <div class="toolbar">
+            <label class="switch" aria-label="Переключить тему">
+                <input type="checkbox" id="themeSwitch">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <script>
+        function createClockMarks() {
+            const hourMarks = document.querySelector(".hour-marks");
+
+            for (let i = 0; i < 12; i++) {
+                const mark = document.createElement("div");
+                mark.classList.add("mark");
+                mark.classList.add(i % 3 === 0 ? "main" : "small");
+                mark.style.transform = `rotate(${i * 30}deg) translateX(-50%)`;
+                hourMarks.appendChild(mark);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours() % 12;
+
+            const secondDeg = seconds * 6;
+            const minuteDeg = minutes * 6 + seconds * 0.1;
+            const hourDeg = hours * 30 + minutes * 0.5;
+
+            document.querySelector(".second-hand-wrapper").style.transform = `rotate(${secondDeg}deg)`;
+            document.querySelector(".minute-hand").style.transform = `rotate(${minuteDeg}deg)`;
+            document.querySelector(".hour-hand").style.transform = `rotate(${hourDeg}deg)`;
+        }
+
+        const themeSwitch = document.getElementById("themeSwitch");
+        const root = document.documentElement;
+
+        function applyTheme(isDark) {
+            root.setAttribute("data-theme", isDark ? "dark" : "light");
+            themeSwitch.checked = isDark;
+        }
+
+        applyTheme(false);
+
+        themeSwitch.addEventListener("change", () => {
+            applyTheme(themeSwitch.checked);
+        });
+
+        createClockMarks();
+        updateClock();
+        setInterval(updateClock, 100);
+    </script>
+</body>
+</html>
